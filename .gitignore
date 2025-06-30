@@ -1,0 +1,5 @@
+.env
+.cph
+__pycache__/
+*.pyc
+uploads/
