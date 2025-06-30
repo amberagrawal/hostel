@@ -1,0 +1,6 @@
+flask
+flask-cors
+flask-mail
+flask-pymongo
+werkzeug
+dnspython
