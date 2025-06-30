@@ -10,7 +10,7 @@ import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-CORS(app, origins=["http://127.0.0.1:5500"], supports_credentials=True)
+CORS(app, origins=["https://hostel-complaint.onrender.com"], supports_credentials=True)
 app.secret_key = 'e7263a66b911619b7f3f427040384ec5'
 app.permanent_session_lifetime = timedelta(days=1)
 
