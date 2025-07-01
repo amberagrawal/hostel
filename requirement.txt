@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 flask
 flask-cors
 flask-mail
 flask-pymongo
 werkzeug
 dnspython
+=======
+flask
+flask-cors
+flask-mail
+flask-pymongo
+werkzeug
+dnspython
+>>>>>>> 5cb3b6048bf687feb8b892da3d0c5e2cc5c3cbd6

@@ -1,37 +1,39 @@
 from flask import Flask, request, jsonify, session, send_from_directory
 from flask_pymongo import PyMongo
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import CORS
 from flask_mail import Mail, Message
-from datetime import timedelta, datetime
-from bson import ObjectId
-import random
-import os
+from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from bson import ObjectId
+from datetime import timedelta, datetime
+from dotenv import load_dotenv
+import os, random
+
+# Load .env variables
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["https://hostel-complaint.onrender.com"], supports_credentials=True)
-app.secret_key = 'e7263a66b911619b7f3f427040384ec5'
+CORS(app, origins=["http://127.0.0.1:5500"], supports_credentials=True)
+app.secret_key = os.getenv('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(days=1)
 
-# MongoDB + Mail Config
-app.config["MONGO_URI"] = "mongodb+srv://aagrawal009btech2023:6RMVVWoazfYm7XNa@cluster0.2zihrjq.mongodb.net/Mydatabase?retryWrites=true&w=majority&appName=Cluster0"
+# Config from .env
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'hostelmaintenance69@gmail.com'
-app.config['MAIL_PASSWORD'] = 'zapf ziom ihko zbiy'
-
-UPLOAD_FOLDER = 'uploads'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 mongo = PyMongo(app)
 mail = Mail(app)
 users_collection = mongo.db.user
 complaints_collection = mongo.db.complaints
-admin_id_collection = mongo.db.id  # Ensure this is your admin ID collection!
+admin_id_collection = mongo.db.id
 otp_store = {}
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -252,6 +254,6 @@ def serve_static(filename):
     return send_from_directory('.', filename)
 
 if __name__ == '__main__':
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
-    app.run(host='0.0.0.0', port=10000)
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    app.run(debug=True, port=5500)

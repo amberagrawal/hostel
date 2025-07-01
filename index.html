@@ -31,9 +31,7 @@
                 <option value="student">Student</option>
                 <option value="admin">Admin</option>
               </select>
-              <span class="input-icon"
-                ><i class="fa-solid fa-user-tag"></i
-              ></span>
+              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
             </div>
             <div class="input-group">
               <input
@@ -68,9 +66,7 @@
                 <option value="student">Student</option>
                 <option value="admin">Admin</option>
               </select>
-              <span class="input-icon"
-                ><i class="fa-solid fa-user-tag"></i
-              ></span>
+              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
             </div>
             <div class="input-group">
               <input
@@ -83,9 +79,7 @@
             </div>
             <div class="input-group">
               <input type="email" name="email" placeholder="Email" required />
-              <span class="input-icon"
-                ><i class="fa-regular fa-envelope"></i
-              ></span>
+              <span class="input-icon"><i class="fa-regular fa-envelope"></i></span>
             </div>
             <div class="input-group">
               <input
@@ -97,7 +91,7 @@
               <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
             </div>
             <!-- Admin ID input, hidden by default -->
-            <div class="input-group" id="admin-id-group" style="display: none">
+            <div class="input-group" id="admin-id-group" style="display:none;">
               <input
                 type="text"
                 id="adminId"
@@ -107,9 +101,7 @@
                 placeholder="Enter 6-digit Admin ID"
                 autocomplete="off"
               />
-              <span class="input-icon"
-                ><i class="fa-solid fa-id-badge"></i
-              ></span>
+              <span class="input-icon"><i class="fa-solid fa-id-badge"></i></span>
             </div>
             <button type="submit" class="login-btn">Register</button>
           </form>
@@ -136,7 +128,7 @@
     <div id="notification" class="notification"></div>
 
     <script>
-      const BASE_URL = "https://hostel-complaint.onrender.com";
+      const BASE_URL = "http://127.0.0.1:5500";
 
       function showNotification(message, type = "") {
         const notification = document.getElementById("notification");
