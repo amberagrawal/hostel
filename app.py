@@ -13,14 +13,19 @@ import os, random
 load_dotenv()
 
 app = Flask(__name__)
+
+# === 🛡️ CORS Setup ===
 CORS(app, origins=[
-    "https://hostel6.onrender.com"
+    "https://hostel6.onrender.com",  # ✅ Include actual frontend domain if different
 ], supports_credentials=True)
 
+# === 🔐 Security + Session Config ===
 app.secret_key = os.getenv('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(days=1)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 
-# Configuration from environment variables
+# === 🛠️ Environment Config ===
 app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -28,12 +33,14 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', '/tmp/uploads')
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Ensure upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+# === 📦 Mongo & Mail ===
 mongo = PyMongo(app)
 mail = Mail(app)
 users_collection = mongo.db.user
@@ -44,7 +51,7 @@ otp_store = {}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- Registration with OTP and Admin ID validation ---
+# === 🔐 Registration ===
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -52,21 +59,18 @@ def register():
     password = data.get('password')
     role = data.get('role', 'student')
     email = data.get('email')
-    admin_id = data.get('adminId')  # Only provided if role is admin
+    admin_id = data.get('adminId')
 
-    # Validate required fields
     if not all([username, password, email]):
         return jsonify({'message': 'Missing required fields'}), 400
 
     if users_collection.find_one({'username': username}):
         return jsonify({'message': 'User already exists'}), 409
 
-    # If registering as admin, validate admin ID
     if role == 'admin':
         if not admin_id or not admin_id.isdigit() or len(admin_id) != 6:
             return jsonify({'message': 'Valid 6-digit Admin ID required'}), 400
-        admin_id = str(admin_id).strip()
-        if not admin_id_collection.find_one({'id': admin_id}):
+        if not admin_id_collection.find_one({'id': admin_id.strip()}):
             return jsonify({'message': 'Admin ID not found'}), 403
 
     otp = str(random.randint(100000, 999999))
@@ -90,11 +94,13 @@ def register():
 
     return jsonify({'message': 'OTP sent to email'}), 200
 
+# === ✅ Verify OTP ===
 @app.route('/verify_otp', methods=['POST'])
 def verify_otp():
     data = request.get_json()
     username = data.get('username')
     entered_otp = data.get('otp')
+
     record = otp_store.get(username)
     if not record:
         return jsonify({'message': 'No OTP session found'}), 400
@@ -102,9 +108,9 @@ def verify_otp():
         users_collection.insert_one(record['user'])
         otp_store.pop(username, None)
         return jsonify({'message': 'Registration successful'}), 201
-    else:
-        return jsonify({'message': 'Invalid OTP'}), 403
+    return jsonify({'message': 'Invalid OTP'}), 403
 
+# === 🔑 Login ===
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -124,12 +130,14 @@ def login():
 
     return jsonify({'message': 'Invalid credentials'}), 401
 
+# === 🚪 Logout ===
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('username', None)
     session.pop('role', None)
     return jsonify({'message': 'Logged out successfully'}), 200
 
+# === 📝 Submit Complaint ===
 @app.route('/submit_complaint', methods=['POST'])
 def submit_complaint():
     if 'username' not in session:
@@ -152,7 +160,7 @@ def submit_complaint():
     image_url = None
     if 'image' in request.files:
         file = request.files['image']
-        if file.filename != '' and allowed_file(file.filename):
+        if file.filename and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
@@ -177,10 +185,12 @@ def submit_complaint():
     complaints_collection.insert_one(complaint)
     return jsonify({'message': 'Complaint submitted successfully'}), 200
 
+# === 🖼️ Serve Uploaded Files ===
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+# === 📋 Fetch Complaints ===
 @app.route('/api/complaints', methods=['GET'])
 def get_all_complaints():
     if 'username' not in session:
@@ -192,11 +202,12 @@ def get_all_complaints():
         complaints = list(complaints_collection.find())
     else:
         complaints = list(complaints_collection.find({'username': session['username']}))
-    for complaint in complaints:
-        complaint['_id'] = str(complaint['_id'])
-        complaint.setdefault('status', 'Open')
+    for c in complaints:
+        c['_id'] = str(c['_id'])
+        c.setdefault('status', 'Open')
     return jsonify(complaints), 200
 
+# === 🛠️ Update Complaint Status ===
 @app.route('/api/complaints/<complaint_id>', methods=['PUT'])
 def update_complaint_status(complaint_id):
     if 'username' not in session:
@@ -214,17 +225,14 @@ def update_complaint_status(complaint_id):
     )
     if result.matched_count:
         return jsonify({'message': 'Status updated successfully'}), 200
-    else:
-        return jsonify({'message': 'Complaint not found'}), 404
+    return jsonify({'message': 'Complaint not found'}), 404
 
+# === ❌ Delete Complaint ===
 @app.route('/api/complaints/<complaint_id>', methods=['DELETE'])
 def delete_complaint(complaint_id):
     if 'username' not in session:
         return jsonify({'message': 'Please login first'}), 401
     user = users_collection.find_one({'username': session['username']})
-    if not user:
-        return jsonify({'message': 'User not found'}), 401
-    # Only allow the user who created the complaint or an admin to delete
     complaint = complaints_collection.find_one({'_id': ObjectId(complaint_id)})
     if not complaint:
         return jsonify({'message': 'Complaint not found'}), 404
@@ -233,6 +241,7 @@ def delete_complaint(complaint_id):
     complaints_collection.delete_one({'_id': ObjectId(complaint_id)})
     return jsonify({'message': 'Complaint deleted'}), 200
 
+# === Static Pages ===
 @app.route('/dashboard.html')
 def protected_dashboard():
     if 'username' not in session or session.get('role') != 'student':
@@ -253,7 +262,7 @@ def serve_index():
 def serve_static(filename):
     return send_from_directory('.', filename)
 
+# === 🚀 Run App ===
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5500))
     app.run(debug=True, host='0.0.0.0', port=port)
