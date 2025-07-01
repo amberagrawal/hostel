@@ -14,7 +14,7 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins=[
-    "https://hostel3.onrender.com"
+    "https://hostel6.onrender.com"
 ], supports_credentials=True)
 
 app.secret_key = os.getenv('SECRET_KEY')
