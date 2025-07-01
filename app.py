@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 # === 🛡️ CORS Setup ===
 CORS(app, origins=[
-    "https://hostel6.onrender.com",  # ✅ Include actual frontend domain if different
+    "https://hostel69.onrender.com",  # ✅ Include actual frontend domain if different
 ], supports_credentials=True)
 
 # === 🔐 Security + Session Config ===
