@@ -155,6 +155,7 @@
     </div>
   </div>
   <script>
+    const BASE_URL = location.origin;
     const complaints = [];
     let pendingDeleteId = null;
 
@@ -213,7 +214,7 @@
           showDeleteModal(complaintId, async function(id) {
             try {
               const res = await fetch(
-                `https://hostel6.onrender.com/api/complaints/${id}`,
+                `${BASE_URL}/api/complaints/${id}`,
                 {
                   method: "DELETE",
                   credentials: "include",
@@ -252,7 +253,7 @@
 
     async function fetchUserComplaints() {
       try {
-        const res = await fetch("https://hostel6.onrender.com/api/complaints", {
+        const res = await fetch("${BASE_URL}/api/complaints", {
           method: "GET",
           credentials: "include",
         });
@@ -283,7 +284,7 @@
       formData.append("date", new Date().toLocaleString());
 
       try {
-        const res = await fetch("https://hostel6.onrender.com/submit_complaint", {
+        const res = await fetch("${BASE_URL}/submit_complaint", {
           method: "POST",
           credentials: "include",
           body: formData,
@@ -323,7 +324,7 @@
     // Logout functionality
     document.querySelector(".logout-btn").addEventListener("click", async () => {
       try {
-        const res = await fetch("https://hostel6.onrender.com/logout", {
+        const res = await fetch("${BASE_URL}/logout", {
           method: "POST",
           credentials: "include",
         });
