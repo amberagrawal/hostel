@@ -213,7 +213,7 @@
           showDeleteModal(complaintId, async function(id) {
             try {
               const res = await fetch(
-                `http://127.0.0.1:5500/api/complaints/${id}`,
+                `https://hostel3.onrender.com/api/complaints/${id}`,
                 {
                   method: "DELETE",
                   credentials: "include",
@@ -252,7 +252,7 @@
 
     async function fetchUserComplaints() {
       try {
-        const res = await fetch("http://127.0.0.1:5500/api/complaints", {
+        const res = await fetch("https://hostel3.onrender.com/api/complaints", {
           method: "GET",
           credentials: "include",
         });
@@ -283,7 +283,7 @@
       formData.append("date", new Date().toLocaleString());
 
       try {
-        const res = await fetch("http://127.0.0.1:5500/submit_complaint", {
+        const res = await fetch("https://hostel3.onrender.com/submit_complaint", {
           method: "POST",
           credentials: "include",
           body: formData,
@@ -323,7 +323,7 @@
     // Logout functionality
     document.querySelector(".logout-btn").addEventListener("click", async () => {
       try {
-        const res = await fetch("http://127.0.0.1:5500/logout", {
+        const res = await fetch("https://hostel3.onrender.com/logout", {
           method: "POST",
           credentials: "include",
         });
