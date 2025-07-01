@@ -118,7 +118,7 @@
       async function fetchComplaints() {
         try {
           document.getElementById("loading").style.display = "block";
-          const response = await fetch("https://hostel3.onrender.com/api/complaints", {
+          const response = await fetch("https://hostel6.onrender.com/api/complaints", {
             method: "GET",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -234,7 +234,7 @@
             const complaint = complaints[idx];
             try {
               const res = await fetch(
-                `https://hostel3.onrender.com/api/complaints/${complaintId}`,
+                `https://hostel6.onrender.com/api/complaints/${complaintId}`,
                 {
                   method: "PUT",
                   credentials: "include",
@@ -273,7 +273,7 @@
         .querySelector(".logout-btn")
         .addEventListener("click", async () => {
           try {
-            const res = await fetch("https://hostel3.onrender.com/logout", {
+            const res = await fetch("https://hostel6.onrender.com/logout", {
               method: "POST",
               credentials: "include",
             });
