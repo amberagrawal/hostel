@@ -9,23 +9,30 @@ from datetime import timedelta, datetime
 from dotenv import load_dotenv
 import os, random
 
-# Load .env variables
+# Load environment variables from .env
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["http://127.0.0.1:5500"], supports_credentials=True)
+CORS(app, origins=[
+    "https://hostel3.onrender.com"
+], supports_credentials=True)
+
 app.secret_key = os.getenv('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(days=1)
 
-# Config from .env
+# Configuration from environment variables
 app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
+app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', '/tmp/uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Ensure upload folder exists
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 mongo = PyMongo(app)
 mail = Mail(app)
@@ -33,7 +40,6 @@ users_collection = mongo.db.user
 complaints_collection = mongo.db.complaints
 admin_id_collection = mongo.db.id
 otp_store = {}
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -59,11 +65,8 @@ def register():
     if role == 'admin':
         if not admin_id or not admin_id.isdigit() or len(admin_id) != 6:
             return jsonify({'message': 'Valid 6-digit Admin ID required'}), 400
-        admin_id = str(admin_id).strip()  # Ensure string and remove spaces
-        print(f"Checking admin_id: '{admin_id}'")
-        result = admin_id_collection.find_one({'id': admin_id})
-        print("Query result:", result)
-        if not result:
+        admin_id = str(admin_id).strip()
+        if not admin_id_collection.find_one({'id': admin_id}):
             return jsonify({'message': 'Admin ID not found'}), 403
 
     otp = str(random.randint(100000, 999999))
@@ -86,8 +89,6 @@ def register():
         return jsonify({'message': 'Failed to send OTP'}), 500
 
     return jsonify({'message': 'OTP sent to email'}), 200
-
-# --- The rest of your code remains unchanged ---
 
 @app.route('/verify_otp', methods=['POST'])
 def verify_otp():
@@ -215,7 +216,7 @@ def update_complaint_status(complaint_id):
         return jsonify({'message': 'Status updated successfully'}), 200
     else:
         return jsonify({'message': 'Complaint not found'}), 404
-    
+
 @app.route('/api/complaints/<complaint_id>', methods=['DELETE'])
 def delete_complaint(complaint_id):
     if 'username' not in session:
@@ -231,7 +232,6 @@ def delete_complaint(complaint_id):
         return jsonify({'message': 'Unauthorized'}), 403
     complaints_collection.delete_one({'_id': ObjectId(complaint_id)})
     return jsonify({'message': 'Complaint deleted'}), 200
-
 
 @app.route('/dashboard.html')
 def protected_dashboard():
@@ -254,6 +254,6 @@ def serve_static(filename):
     return send_from_directory('.', filename)
 
 if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(debug=True, port=5500)
+    import os
+    port = int(os.environ.get('PORT', 5500))
+    app.run(debug=True, host='0.0.0.0', port=port)
