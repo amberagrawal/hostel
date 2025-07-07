@@ -38,7 +38,7 @@ mail = Mail(app)
 users_collection = mongo.db.user
 complaints_collection = mongo.db.complaints
 admin_id_collection = mongo.db.id
-otp_store = {}
+otp_collection = mongo.db.otp 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
