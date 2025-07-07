@@ -67,15 +67,19 @@ def register():
             return jsonify({'message': 'Admin ID not found'}), 403
 
     otp = str(random.randint(100000, 999999))
-    otp_store[username] = {
+    # Remove any previous OTP for this user
+    otp_collection.delete_many({'username': username})
+    otp_collection.insert_one({
+        'username': username,
         'otp': otp,
         'user': {
             'username': username,
             'password': generate_password_hash(password),
             'role': role,
             'email': email
-        }
-    }
+        },
+        'created_at': datetime.utcnow()
+    })
 
     try:
         msg = Message('Your OTP Code', sender=app.config['MAIL_USERNAME'], recipients=[email])
@@ -92,12 +96,20 @@ def verify_otp():
     data = request.get_json()
     username = data.get('username')
     entered_otp = data.get('otp')
-    record = otp_store.get(username)
+    record = otp_collection.find_one({'username': username})
+
     if not record:
         return jsonify({'message': 'No OTP session found'}), 400
+
+    # Check OTP expiry (10 minutes)
+    expiry_time = record['created_at'] + timedelta(minutes=10)
+    if datetime.utcnow() > expiry_time:
+        otp_collection.delete_one({'_id': record['_id']})
+        return jsonify({'message': 'OTP expired'}), 400
+
     if entered_otp == record['otp']:
         users_collection.insert_one(record['user'])
-        otp_store.pop(username, None)
+        otp_collection.delete_one({'_id': record['_id']})
         return jsonify({'message': 'Registration successful'}), 201
     else:
         return jsonify({'message': 'Invalid OTP'}), 403
