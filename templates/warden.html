@@ -204,11 +204,15 @@
             </td>
             <td>
               ${
-                c.image_url
-                  ? `<a href="${c.image_url}" target="_blank"><img src="${c.image_url}" alt="Evidence" style="max-width:60px;max-height:60px;"></a>`
+                c.image_base64
+                  ? `<a href="data:image/png;base64,${c.image_base64}" target="_blank">
+                      <img src="data:image/png;base64,${c.image_base64}" alt="Evidence"
+                            style="max-width:60px; max-height:60px; border:1px solid #ccc;" />
+                    </a>`
                   : "No image"
               }
             </td>
+
             <td>
               <select class="status-select" data-id="${c._id}" data-index="${idx}">
                 ${statusOptions
