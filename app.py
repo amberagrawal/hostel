@@ -102,23 +102,27 @@ def verify_otp():
         return jsonify({'message': 'Invalid OTP'}), 403
 
 @app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    role = data.get('role')
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        role = data.get('role')
 
-    user = users_collection.find_one({'username': username})
-    if user and check_password_hash(user['password'], password):
-        if role and role != user.get('role', '').lower():
-            return jsonify({'message': 'Role does not match'}), 401
+        user = users_collection.find_one({'username': username})
+        if user and check_password_hash(user['password'], password):
+            if role and role != user.get('role', '').lower():
+                return jsonify({'message': 'Role does not match'}), 401
 
-        session['username'] = username
-        session['role'] = user.get('role', 'student')
-        redirect_url = url_for('dashboard') if session['role'] == 'student' else url_for('warden')
-        return jsonify({'message': 'Login successful', 'redirect': redirect_url}), 200
+            session['username'] = username
+            session['role'] = user.get('role', 'student')
+            redirect_url = url_for('dashboard') if session['role'] == 'student' else url_for('warden')
+            return jsonify({'message': 'Login successful', 'redirect': redirect_url}), 200
 
-    return jsonify({'message': 'Invalid credentials'}), 401
+        return jsonify({'message': 'Invalid credentials'}), 401
+    except Exception as e:
+        return jsonify({'message': 'Internal server error', 'error': str(e)}), 500
 
 @app.route('/logout', methods=['POST'])
 def logout():
