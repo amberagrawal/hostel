@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 from bson import ObjectId
 import random
 from werkzeug.utils import secure_filename
+from flask import make_response
 
 app = Flask(__name__)
 
@@ -102,7 +103,6 @@ def verify_otp():
         return jsonify({'message': 'Invalid OTP'}), 403
 
 @app.route('/login', methods=['POST'])
-@app.route('/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
@@ -123,6 +123,7 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401
     except Exception as e:
         return jsonify({'message': 'Internal server error', 'error': str(e)}), 500
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -236,13 +237,17 @@ def delete_complaint(complaint_id):
 def dashboard():
     if 'username' not in session or session.get('role') != 'student':
         return render_template('index.html')
-    return render_template('dashboard.html')
+    response = make_response(render_template('dashboard.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/warden.html')
 def warden():
     if 'username' not in session or session.get('role') != 'admin':
         return render_template('index.html')
-    return render_template('warden.html')
+    response = make_response(render_template('warden.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/')
 def serve_index():
