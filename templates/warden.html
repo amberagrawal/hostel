@@ -126,12 +126,12 @@
 
           if (response.status === 401) {
             alert("Please login first");
-            window.location.href = "index.html";
+            window.location.href = "/";
             return [];
           }
           if (response.status === 403) {
             alert("Access denied. Admin/Warden access required.");
-            window.location.href = "index.html";
+            window.location.href = "/";
             return [];
           }
           if (!response.ok) {
@@ -279,7 +279,7 @@
             });
             const data = await res.json();
             if (res.status === 200) {
-              window.location.href = "index.html";
+              window.location.href = "/";
             } else {
               alert("Logout failed: " + data.message);
             }
