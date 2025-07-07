@@ -200,7 +200,12 @@
             </div>
             <div class="complaint-text"><strong>Description:</strong> ${c.text || "No description"}</div>
             <div class="complaint-status"><strong>Status:</strong> ${c.status || "Open"}</div>
-            ${c.image_url ? `<div class="complaint-image"><strong>Image:</strong><br><img src="${c.image_url}" alt="Evidence" style="max-width:100px;max-height:100px;"></div>` : ""}
+            ${c.image_base64 ? `
+              <div class="complaint-image">
+                <strong>Image:</strong><br>
+                <img src="data:image/png;base64,${c.image_base64}" alt="Evidence"
+                    style="max-width:100px; max-height:100px; border:1px solid #ccc; margin-top:5px;">
+              </div>` : ""}
             <button class="delete-btn" data-id="${c._id}"><span class="icon">🗑️</span> Delete</button>
           `;
           list.appendChild(el);
