@@ -1,4 +1,5 @@
 import os
+import base64
 from flask import Flask, request, jsonify, session, render_template, redirect, url_for
 from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -162,14 +163,12 @@ def submit_complaint():
     if not all(required_fields):
         return jsonify({'message': 'Missing data'}), 400
 
-    image_url = None
+    image_base64 = None
     if 'image' in request.files:
         file = request.files['image']
-        if file.filename != '' and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            image_url = f'/uploads/{filename}'
+        if file and allowed_file(file.filename):
+            image_data = file.read()
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
 
     complaint = {
         'username': session['username'],
@@ -184,7 +183,7 @@ def submit_complaint():
         'hostel': hostel,
         'date': date,
         'status': 'Open',
-        'image_url': image_url
+        'image_base64': image_base64  # <--- store image here
     }
 
     complaints_collection.insert_one(complaint)
