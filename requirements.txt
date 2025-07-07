@@ -4,5 +4,5 @@ Flask-CORS
 Flask-Mail
 Werkzeug
 gunicorn
-pymongo[srv]
+pymongo
 python-dotenv
