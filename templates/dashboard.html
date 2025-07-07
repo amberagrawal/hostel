@@ -329,7 +329,7 @@
         });
         const data = await res.json();
         if (res.status === 200) {
-          window.location.href = "index.html";
+          window.location.href = "/";
         } else {
           alert("Logout failed: " + data.message);
         }
