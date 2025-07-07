@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login/Register Page</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  </head>
+  <body>
+    <div class="bg">
+      <div class="login-card">
+        <div class="login-left">
+          <img src="hostel2.jpg" alt="Illustration" />
+          <div class="create-account" id="toggle-link">
+            <a href="#" id="toggleForm">Create an account</a>
+          </div>
+        </div>
+        <div class="login-right">
+          <form id="loginForm">
+            <h2>Log In</h2>
+            <div class="input-group">
+              <select name="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+              </select>
+              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
+            </div>
+            <div class="input-group">
+              <input
+                type="text"
+                name="username"
+                placeholder="Enter username"
+                required
+              />
+              <span class="input-icon"><i class="fa-regular fa-user"></i></span>
+            </div>
+            <div class="input-group">
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+              />
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+            </div>
+            <div class="remember-row">
+              <input type="checkbox" id="remember" />
+              <label for="remember">Remember me</label>
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+          </form>
+
+          <form id="registerForm" style="display: none">
+            <h2>Register</h2>
+            <div class="input-group">
+              <select name="role" id="registerRole" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+              </select>
+              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
+            </div>
+            <div class="input-group">
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+              />
+              <span class="input-icon"><i class="fa-regular fa-user"></i></span>
+            </div>
+            <div class="input-group">
+              <input type="email" name="email" placeholder="Email" required />
+              <span class="input-icon"><i class="fa-regular fa-envelope"></i></span>
+            </div>
+            <div class="input-group">
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+              />
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+            </div>
+            <!-- Admin ID input, hidden by default -->
+            <div class="input-group" id="admin-id-group" style="display:none;">
+              <input
+                type="text"
+                id="adminId"
+                name="adminId"
+                maxlength="6"
+                pattern="\d{6}"
+                placeholder="Enter 6-digit Admin ID"
+                autocomplete="off"
+              />
+              <span class="input-icon"><i class="fa-solid fa-id-badge"></i></span>
+            </div>
+            <button type="submit" class="login-btn">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal" class="otp-modal" style="display: none">
+      <div class="otp-box">
+        <h2>Verify Your Email</h2>
+        <div id="otpError" class="otp-error"></div>
+        <input
+          type="text"
+          id="otpInput"
+          maxlength="6"
+          placeholder="Enter OTP"
+          autocomplete="one-time-code"
+        />
+        <button onclick="verifyOtp()">Verify</button>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+      const BASE_URL = "";
+
+      function showNotification(message, type = "") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.className = "notification show" + (type ? " " + type : "");
+        setTimeout(() => {
+          notification.className = "notification";
+        }, 3000);
+      }
+
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+      const toggleForm = document.getElementById("toggleForm");
+      const registerRole = document.getElementById("registerRole");
+      const adminIdGroup = document.getElementById("admin-id-group");
+      const adminIdInput = document.getElementById("adminId");
+
+      // Show/hide Admin ID field based on role selection
+      registerRole.addEventListener("change", function () {
+        if (this.value === "admin") {
+          adminIdGroup.style.display = "flex";
+          adminIdInput.required = true;
+        } else {
+          adminIdGroup.style.display = "none";
+          adminIdInput.required = false;
+          adminIdInput.value = "";
+        }
+      });
+
+      toggleForm.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (loginForm.style.display === "none") {
+          loginForm.style.display = "";
+          registerForm.style.display = "none";
+          toggleForm.textContent = "Create an account";
+        } else {
+          loginForm.style.display = "none";
+          registerForm.style.display = "";
+          toggleForm.textContent = "Already have an account? Log In";
+        }
+      });
+
+      // Registration with OTP
+      let pendingUsername = "";
+      let pendingPassword = "";
+      let pendingRole = "";
+      let pendingEmail = "";
+      let pendingAdminId = "";
+
+      registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = registerForm.username.value;
+        const password = registerForm.password.value;
+        const role = registerForm.role.value;
+        const email = registerForm.email.value;
+        const adminId =
+          role === "admin" ? registerForm.adminId.value.trim() : undefined;
+
+        try {
+          const body = { username, password, role, email };
+          if (role === "admin") {
+            body.adminId = adminId;
+          }
+          const res = await fetch(BASE_URL + "/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (res.status === 200) {
+            pendingUsername = username;
+            pendingPassword = password;
+            pendingRole = role;
+            pendingEmail = email;
+            pendingAdminId = adminId;
+            document.getElementById("otpModal").style.display = "flex";
+            showNotification("OTP sent to your email", "success");
+          } else {
+            showNotification(data.message, "error");
+          }
+        } catch (error) {
+          showNotification("Registration failed", "error");
+        }
+      });
+
+      async function verifyOtp() {
+        const otp = document.getElementById("otpInput").value;
+        try {
+          const res = await fetch(BASE_URL + "/verify_otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ username: pendingUsername, otp }),
+          });
+          const data = await res.json();
+          if (res.status === 201) {
+            document.getElementById("otpModal").style.display = "none";
+            showNotification("Registration successful!", "success");
+            toggleForm.click();
+          } else {
+            document.getElementById("otpError").textContent =
+              data.message || "Invalid OTP";
+          }
+        } catch (err) {
+          document.getElementById("otpError").textContent =
+            "Verification failed";
+        }
+      }
+
+      // Login
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = loginForm.username.value;
+        const password = loginForm.password.value;
+        const role = loginForm.role.value;
+
+        try {
+          const res = await fetch(BASE_URL + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ username, password, role }),
+          });
+
+          const data = await res.json();
+          showNotification(
+            data.message,
+            res.status === 200 ? "success" : "error"
+          );
+          if (res.status === 200 && data.redirect) {
+            window.location.href = data.redirect;
+          }
+        } catch (error) {
+        console.error(error);
+          showNotification("Login failed", "error");
+        }
+      });
+    </script>
+  </body>
+</html>

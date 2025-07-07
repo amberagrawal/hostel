@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warden/Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='warden.css') }}">
+  </head>
+  <body>
+    <header>
+      <div class="hostel-select">
+        <span class="hostel-icon">
+          <!-- Building SVG icon -->
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            style="vertical-align: middle"
+          >
+            <rect x="3" y="7" width="18" height="13" rx="2.5" fill="#a6b7cf" />
+            <rect x="7" y="11" width="2" height="3" fill="#6b7a90" />
+            <rect x="11" y="11" width="2" height="3" fill="#6b7a90" />
+            <rect x="15" y="11" width="2" height="3" fill="#6b7a90" />
+            <rect x="7" y="15" width="2" height="3" fill="#6b7a90" />
+            <rect x="11" y="15" width="2" height="3" fill="#6b7a90" />
+            <rect x="15" y="15" width="2" height="3" fill="#6b7a90" />
+            <rect x="9" y="7" width="6" height="2" fill="#6b7a90" />
+          </svg>
+        </span>
+        <span class="hostel-label">NIT RAIPUR: Warden/Admin Panel</span>
+      </div>
+      <button class="logout-btn">Logout</button>
+    </header>
+
+    <div class="dashboard">
+      <div class="admin-panel">
+        <h1 class="main-title">All Complaints Management</h1>
+        <div class="stats-row">
+          <div class="stat-card">
+            <span class="stat-number" id="total-complaints">0</span>
+            <span class="stat-label">Total Complaints</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="open-complaints">0</span>
+            <span class="stat-label">Open</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="progress-complaints">0</span>
+            <span class="stat-label">In Progress</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="resolved-complaints">0</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Hostel</th>
+                <th>Title</th>
+                <th>Room</th>
+                <th>Description</th>
+                <th>Student Details</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-complaints-body">
+              <!-- Complaints will be rendered here -->
+            </tbody>
+          </table>
+          <div
+            id="no-complaints"
+            class="complaints-placeholder"
+            style="display: none"
+          >
+            No complaints in the database.
+          </div>
+          <div id="loading" class="loading">Loading complaints...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlert" class="custom-alert-overlay">
+      <div class="custom-alert-box">
+        <div class="custom-alert-header">
+          <span class="custom-alert-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <rect width="22" height="22" rx="4" fill="#21c87a" />
+              <path
+                d="M6 11.5L10 15.5L16 7.5"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="custom-alert-title">Status Updated!</span>
+          <button class="custom-alert-btn" onclick="closeCustomAlert()">
+            OK
+          </button>
+        </div>
+        <div class="custom-alert-details" id="customAlertMsg"></div>
+      </div>
+    </div>
+
+    <script>
+      // Status options
+      const statusOptions = ["Open", "In Progress", "Resolved", "Closed"];
+      let complaints = [];
+
+      // Fetch complaints from backend API
+      async function fetchComplaints() {
+        try {
+          document.getElementById("loading").style.display = "block";
+          const response = await fetch("/api/complaints", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.status === 401) {
+            alert("Please login first");
+            window.location.href = "index.html";
+            return [];
+          }
+          if (response.status === 403) {
+            alert("Access denied. Admin/Warden access required.");
+            window.location.href = "index.html";
+            return [];
+          }
+          if (!response.ok) {
+            throw new Error("Failed to fetch complaints");
+          }
+          const fetchedComplaints = await response.json();
+          complaints = fetchedComplaints;
+          updateStats();
+          return fetchedComplaints;
+        } catch (error) {
+          console.error("Error fetching complaints:", error);
+          alert("Error fetching complaints. Please try again.");
+          return [];
+        } finally {
+          document.getElementById("loading").style.display = "none";
+        }
+      }
+
+      // Update statistics
+      function updateStats() {
+        const total = complaints.length;
+        const open = complaints.filter((c) => c.status === "Open").length;
+        const inProgress = complaints.filter(
+          (c) => c.status === "In Progress"
+        ).length;
+        const resolved = complaints.filter(
+          (c) => c.status === "Resolved"
+        ).length;
+        document.getElementById("total-complaints").textContent = total;
+        document.getElementById("open-complaints").textContent = open;
+        document.getElementById("progress-complaints").textContent = inProgress;
+        document.getElementById("resolved-complaints").textContent = resolved;
+      }
+
+      // Render complaints in admin dashboard
+      function renderAdminComplaints(complaints) {
+        const tbody = document.getElementById("admin-complaints-body");
+        const noComplaints = document.getElementById("no-complaints");
+        tbody.innerHTML = "";
+
+        if (complaints.length === 0) {
+          noComplaints.style.display = "block";
+          return;
+        } else {
+          noComplaints.style.display = "none";
+        }
+
+        complaints.forEach((c, idx) => {
+          const row = document.createElement("tr");
+          const statusClass = `status-${(c.status || "Open")
+            .toLowerCase()
+            .replace(" ", "-")}`;
+          row.innerHTML = `
+            <td>${c.hostel || "N/A"}</td>
+            <td>${c.title || "N/A"}</td>
+            <td>${c.room || "N/A"}</td>
+            <td>${c.text || "No description"}</td>
+            <td>
+              <div><b>Name:</b> ${c.name || "N/A"}</div>
+              <div><b>Roll No:</b> ${c.rollno || "N/A"}</div>
+              <div><b>Year:</b> ${c.year || "N/A"}</div>
+              <div><b>Branch:</b> ${c.branch || "N/A"}</div>
+              <div><b>Username:</b> ${c.username || "N/A"}</div>
+            </td>
+            <td>${c.date || "N/A"}</td>
+            <td>
+              <span class="status-badge ${statusClass}">${
+            c.status || "Open"
+          }</span>
+            </td>
+            <td>
+              ${
+                c.image_url
+                  ? `<a href="${c.image_url}" target="_blank"><img src="${c.image_url}" alt="Evidence" style="max-width:60px;max-height:60px;"></a>`
+                  : "No image"
+              }
+            </td>
+            <td>
+              <select class="status-select" data-id="${c._id}" data-index="${idx}">
+                ${statusOptions
+                  .map(
+                    (status) =>
+                      `<option value="${status}"${
+                        (c.status || "Open") === status ? " selected" : ""
+                      }>${status}</option>`
+                  )
+                  .join("")}
+              </select>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        // Add event listeners for status change
+        document.querySelectorAll(".status-select").forEach((select) => {
+          select.addEventListener("change", async function () {
+            const complaintId = this.getAttribute("data-id");
+            const idx = this.getAttribute("data-index");
+            const newStatus = this.value;
+            const complaint = complaints[idx];
+            try {
+              const res = await fetch(
+                `/api/complaints/${complaintId}`,
+                {
+                  method: "PUT",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ status: newStatus }),
+                }
+              );
+              if (!res.ok) throw new Error("Failed to update status");
+              complaint.status = newStatus;
+              updateStats();
+              showCustomAlert(
+                `<div class="alert-detail-row"><span>Status changed to:</span> <b>${newStatus}</b></div>
+                 <div class="alert-detail-row"><span>Title:</span> <b>${complaint.title}</b></div>
+                 <div class="alert-detail-row"><span>Room:</span> <b>${complaint.room}</b></div>
+                 <div class="alert-detail-row"><span>Student:</span> <b>${complaint.username}</b></div>`
+              );
+              renderAdminComplaints(complaints);
+            } catch (error) {
+              console.error("Error updating status:", error);
+              alert("Failed to update status. Please try again.");
+              this.value = complaint.status || "Open";
+            }
+          });
+        });
+      }
+
+      function showCustomAlert(message) {
+        document.getElementById("customAlertMsg").innerHTML = message;
+        document.getElementById("customAlert").classList.add("active");
+      }
+      function closeCustomAlert() {
+        document.getElementById("customAlert").classList.remove("active");
+      }
+
+      document
+        .querySelector(".logout-btn")
+        .addEventListener("click", async () => {
+          try {
+            const res = await fetch("/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+            const data = await res.json();
+            if (res.status === 200) {
+              window.location.href = "index.html";
+            } else {
+              alert("Logout failed: " + data.message);
+            }
+          } catch (err) {
+            alert("Logout error");
+            console.error(err);
+          }
+        });
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        const fetchedComplaints = await fetchComplaints();
+        renderAdminComplaints(fetchedComplaints);
+      });
+    </script>
+  </body>
+</html>

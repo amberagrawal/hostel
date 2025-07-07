@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hostel Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+  <header>
+    <div class="hostel-select">
+      <span class="hostel-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" style="vertical-align: middle">
+          <rect x="3" y="7" width="18" height="13" rx="2.5" fill="#a6b7cf" />
+          <rect x="7" y="11" width="2" height="3" fill="#6b7a90" />
+          <rect x="11" y="11" width="2" height="3" fill="#6b7a90" />
+          <rect x="15" y="11" width="2" height="3" fill="#6b7a90" />
+          <rect x="7" y="15" width="2" height="3" fill="#6b7a90" />
+          <rect x="11" y="15" width="2" height="3" fill="#6b7a90" />
+          <rect x="15" y="15" width="2" height="3" fill="#6b7a90" />
+          <rect x="9" y="7" width="6" height="2" fill="#6b7a90" />
+        </svg>
+      </span>
+      <span class="hostel-label">NIT RAIPUR:</span>
+      <select id="hostel">
+        <option>Hostel Mainpat</option>
+        <option>Hostel Chitrakoot</option>
+        <option>Hostel Malhar</option>
+        <option>Hostel Sirpur</option>
+        <option>Hostel Kotumsar</option>
+        <option>Hostel Indravati</option>
+        <option>Hostel Mahanadi</option>
+      </select>
+    </div>
+    <button class="logout-btn">Logout</button>
+  </header>
+
+  <div class="dashboard">
+    <div class="left">
+      <div class="complaints-section">
+        <h2 class="complaints-title">Complaints</h2>
+        <div id="complaints-list" class="complaints-list">
+          <div class="complaints-placeholder">
+            No complaints submitted yet.
+          </div>
+        </div>
+      </div>
+      <a href="#" class="section-link">Hostel Grievance Redressal</a>
+      <h1 class="main-title">Submit Your Grievance</h1>
+      <p class="subtitle">
+        Hostel Grievance Redressal ensures a swift and confidential resolution
+        of student concerns. We guarantee a quick response to submitted
+        complaints, fostering a secure and comfortable living environment for
+        all hostel residents.
+      </p>
+      <ul class="features-list">
+        <li>
+          <span class="icon">
+            <svg width="22" height="22" fill="none" stroke="#2a4dff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="9" />
+              <polyline points="11 7 11 11 15 13" />
+            </svg>
+          </span>
+          <div>
+            <strong>Swift Grievance Resolution</strong>
+            <p>
+              Swift grievance resolution prioritizes timely and effective
+              solutions, ensuring students' concerns are promptly addressed
+              and resolved.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="icon">
+            <svg width="22" height="22" fill="none" stroke="#2a4dff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="10" width="16" height="8" rx="2" />
+              <path d="M7 10V7a4 4 0 0 1 8 0v3" />
+            </svg>
+          </span>
+          <div>
+            <strong>Confidentiality Assured</strong>
+            <p>
+              Your grievances are handled with utmost confidentiality,
+              ensuring privacy and trust throughout the hostel grievance
+              redressal process.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="icon">
+            <svg width="22" height="22" fill="none" stroke="#2a4dff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </span>
+          <div>
+            <strong>Easy Communication</strong>
+            <p>
+              Effortless communication is facilitated, providing a smooth and
+              accessible channel for expressing and resolving grievances
+              within the hostel community.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="right">
+      <h3>
+        Submit Complaint
+        <span style="color: #2a4dff; font-size: 0.8rem">(Quick Response)</span>
+      </h3>
+      <p>Contact us for hostel grievance redressal</p>
+      <form id="complaintForm" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="rollno" placeholder="Roll Number" required>
+        <input type="text" name="year" placeholder="Year" required>
+        <input type="text" name="branch" placeholder="Branch" required>
+        <select id="complaintTitle" name="title" required>
+          <option value="" disabled selected>Select Complaint</option>
+          <option value="Cleanliness Issue">Cleanliness Issue</option>
+          <option value="Maintenance Request">Electricity Issue</option>
+          <option value="Food Quality">Mess Issue</option>
+          <option value="Water Supply">Washroom Issue</option>
+          <option value="Internet Connectivity">Water Cooler Issue</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="roomNo" name="room" placeholder="Enter your Room No." required />
+        <textarea id="complaintText" name="text" placeholder="Tell us about your grievance" rows="4" required></textarea>
+        <input type="file" name="image" id="image" accept="image/*">
+        <div id="imagePreview"></div>
+        <button type="submit">Submit Complaint</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon">🗑️</div>
+      <div class="modal-title">Delete Complaint</div>
+      <div class="modal-message">Are you sure you want to delete this complaint?</div>
+      <div class="modal-actions">
+        <button id="modalCancel" class="modal-btn cancel">Cancel</button>
+        <button id="modalConfirm" class="modal-btn delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="customAlert" class="custom-alert-overlay">
+    <div class="custom-alert-box">
+      <div class="custom-alert-icon">✅</div>
+      <h2 class="custom-alert-title">Done!!!</h2>
+      <div class="custom-alert-message" id="customAlertMsg"></div>
+      <button class="custom-alert-btn" onclick="closeCustomAlert()">OK</button>
+    </div>
+  </div>
+  <script>
+    const complaints = [];
+    let pendingDeleteId = null;
+
+    // Image preview logic
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    imageInput.addEventListener('change', function() {
+      imagePreview.innerHTML = '';
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="Image Preview" style="max-width:120px;max-height:120px;">';
+          imagePreview.style.display = 'block';
+        }
+        reader.readAsDataURL(this.files[0]);
+      } else {
+        imagePreview.style.display = 'none';
+      }
+    });
+
+    function renderComplaints() {
+      const list = document.getElementById("complaints-list");
+      list.innerHTML = "";
+      if (complaints.length === 0) {
+        list.innerHTML =
+          '<div class="complaints-placeholder">No complaints submitted yet.</div>';
+        return;
+      }
+      complaints
+        .slice()
+        .reverse()
+        .forEach((c) => {
+          const el = document.createElement("div");
+          el.className = "complaint-card";
+          el.innerHTML = `
+            <div class="complaint-header">
+              <span class="complaint-title">${c.title || "No Title"}</span>
+              <span class="complaint-date">${c.date || ""}</span>
+            </div>
+            <div class="complaint-meta">
+              <span class="complaint-hostel"><strong>Hostel:</strong> ${c.hostel || "N/A"}</span>
+              <span class="complaint-room"><strong>Room No:</strong> ${c.room || "N/A"}</span>
+            </div>
+            <div class="complaint-text"><strong>Description:</strong> ${c.text || "No description"}</div>
+            <div class="complaint-status"><strong>Status:</strong> ${c.status || "Open"}</div>
+            ${c.image_url ? `<div class="complaint-image"><strong>Image:</strong><br><img src="${c.image_url}" alt="Evidence" style="max-width:100px;max-height:100px;"></div>` : ""}
+            <button class="delete-btn" data-id="${c._id}"><span class="icon">🗑️</span> Delete</button>
+          `;
+          list.appendChild(el);
+        });
+
+      // Add event listeners for all delete buttons
+      document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const complaintId = this.getAttribute("data-id");
+          showDeleteModal(complaintId, async function(id) {
+            try {
+              const res = await fetch(
+                `/api/complaints/${id}`,
+                {
+                  method: "DELETE",
+                  credentials: "include",
+                }
+              );
+              const data = await res.json();
+              if (res.ok) {
+                showCustomAlert("Complaint deleted successfully.");
+                fetchUserComplaints();
+              } else {
+                alert("Failed to delete: " + data.message);
+              }
+            } catch (err) {
+              alert("Network error");
+              console.error(err);
+            }
+          });
+        });
+      });
+    }
+
+    function showDeleteModal(complaintId, onConfirm) {
+      pendingDeleteId = complaintId;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.add('active');
+      document.getElementById('modalConfirm').onclick = function() {
+        modal.classList.remove('active');
+        onConfirm(pendingDeleteId);
+        pendingDeleteId = null;
+      };
+      document.getElementById('modalCancel').onclick = function() {
+        modal.classList.remove('active');
+        pendingDeleteId = null;
+      };
+    }
+
+    async function fetchUserComplaints() {
+      try {
+        const res = await fetch("/api/complaints", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok) {
+          complaints.length = 0;
+          data.forEach((c) => complaints.push(c));
+          renderComplaints();
+        } else {
+          alert("Error: " + data.message);
+        }
+      } catch (err) {
+        alert("Error loading complaints");
+        console.error(err);
+      }
+    }
+
+    // Submit complaint to backend
+    const complaintForm = document.getElementById("complaintForm");
+    complaintForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      // Collect all form data using FormData
+      const formData = new FormData(complaintForm);
+
+      // Add hostel and date (since hostel is outside the form)
+      formData.append("hostel", document.getElementById("hostel").value);
+      formData.append("date", new Date().toLocaleString());
+
+      try {
+        const res = await fetch("/submit_complaint", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showCustomAlert(
+            `<b>Hostel:</b> ${formData.get("hostel")}<br>
+             <b>Title:</b> ${formData.get("title") || formData.get("complaintTitle")}<br>
+             <b>Room:</b> ${formData.get("room") || formData.get("roomNo")}<br>
+             <b>Text:</b> ${formData.get("text") || formData.get("complaintText")}`
+          );
+          fetchUserComplaints();
+          this.reset();
+          imagePreview.innerHTML = '';
+          imagePreview.style.display = 'none';
+        } else {
+          alert("Failed to submit: " + data.message);
+        }
+      } catch (err) {
+        alert("Network error");
+        console.error(err);
+      }
+    });
+
+    function showCustomAlert(message) {
+      const modal = document.getElementById("customAlert");
+      document.getElementById("customAlertMsg").innerHTML = message;
+      modal.classList.add("active");
+    }
+    function closeCustomAlert() {
+      document.getElementById("customAlert").classList.remove("active");
+    }
+
+    window.addEventListener("DOMContentLoaded", fetchUserComplaints);
+
+    // Logout functionality
+    document.querySelector(".logout-btn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.status === 200) {
+          window.location.href = "index.html";
+        } else {
+          alert("Logout failed: " + data.message);
+        }
+      } catch (err) {
+        alert("Logout error");
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
