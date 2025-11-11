@@ -1,6 +1,6 @@
 import os
 import base64
-from flask import Flask, request, jsonify, session, render_template, redirect, url_for
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for, send_from_directory, make_response
 from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
@@ -271,3 +271,4 @@ def serve_static(filename):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5500)
+
