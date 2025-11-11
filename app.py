@@ -269,6 +269,17 @@ def serve_static(filename):
     # Serve static files from the static folder
     return send_from_directory('static', filename)
 
+@app.route('/favicon.ico')
+def favicon():
+    icon_path = os.path.join(app.root_path, 'static', 'favicon.ico')
+    if os.path.exists(icon_path):
+        return send_from_directory(os.path.join(app.root_path, 'static'),
+                                   'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    else:
+        # Return a 204 (No Content) instead of crashing
+        return ('', 204)
+        
 if __name__ == '__main__':
     app.run(debug=True, port=5500)
+
 
