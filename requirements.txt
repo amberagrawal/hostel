@@ -6,3 +6,8 @@ Werkzeug
 gunicorn
 pymongo
 python-dotenv
+Flask
+gunicorn
+flask_pymongo
+flask_mail
+flask_cors
