@@ -3,108 +3,155 @@
   <head>
     <meta charset="UTF-8" />
     <title>Login/Register Page</title>
-    <link
+    <link 
       href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap"
       rel="stylesheet"
     />
-    <link
+    <link 
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
     />
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link 
+      rel="stylesheet"
+      href="{{ url_for('static', filename='index.css') }}"
+    />
   </head>
   <body>
-    <div class="bg">
-      <div class="login-card">
-        <div class="login-left">
-          <img src="{{ url_for('static', filename='hostel2.jpg') }}" alt="Illustration" />
-          <div class="create-account" id="toggle-link">
-            <a href="#" id="toggleForm">Create an account</a>
+    <div class="main-bg">
+      <!-- Left Side: Animated Info with Icons -->
+      <div class="left-pane">
+        <div class="left-content">
+          <h1 class="left-title">
+            <i class="fa-solid fa-building-columns headline-icon"></i>
+            Hostel Complaint <br /> Management System
+          </h1>
+          <div class="feature-list">
+            <div class="feature">
+              <span class="feature-icon-bg">
+                <i class="fa-solid fa-bolt feature-icon"></i>
+              </span>
+              <span>Instantly Report Hostel Issues</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon-bg">
+                <i class="fa-solid fa-clipboard-check feature-icon"></i>
+              </span>
+              <span>Review Your Complaint</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon-bg">
+                <i class="fa-solid fa-lightbulb feature-icon"></i>
+              </span>
+              <span>Smart Tracking of Complaint Status</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon-bg">
+                <i class="fa-solid fa-shield-halved feature-icon"></i>
+              </span>
+              <span>Secure &amp; Transparent Resolution</span>
+            </div>
           </div>
-        </div>
-        <div class="login-right">
-          <form id="loginForm">
-            <h2>Log In</h2>
-            <div class="input-group">
-              <select name="role" required>
-                <option value="" disabled selected>Select Role</option>
-                <option value="student">Student</option>
-                <option value="admin">Admin</option>
-              </select>
-              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
-            </div>
-            <div class="input-group">
-              <input
-                type="text"
-                name="username"
-                placeholder="Enter username"
-                required
-              />
-              <span class="input-icon"><i class="fa-regular fa-user"></i></span>
-            </div>
-            <div class="input-group">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                required
-              />
-              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
-            </div>
-            <div class="remember-row">
-              <input type="checkbox" id="remember" />
-              <label for="remember">Remember me</label>
-            </div>
-            <button type="submit" class="login-btn">Log In</button>
-          </form>
 
-          <form id="registerForm" style="display: none">
-            <h2>Register</h2>
-            <div class="input-group">
-              <select name="role" id="registerRole" required>
-                <option value="" disabled selected>Select Role</option>
-                <option value="student">Student</option>
-                <option value="admin">Admin</option>
-              </select>
-              <span class="input-icon"><i class="fa-solid fa-user-tag"></i></span>
+        </div>
+      </div>
+      <!-- Vertical Divider -->
+      <div class="divider"></div>
+      <!-- Right Side: Login/Register vertically centered-->
+      <div class="right-pane">
+        <div class="login-card-container">
+          <div class="login-card" id="loginSection">
+            <form id="loginForm">
+              <h2>Log In</h2>
+              <div class="input-group">
+                <select name="role" required>
+                  <option value="" disabled selected>Select Role</option>
+                  <option value="student">Student</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <span class="input-icon">
+                  <i class="fa-solid fa-user-tag"></i>
+                </span>
+              </div>
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Enter username"
+                  required
+                />
+                <span class="input-icon"><i class="fa-regular fa-user"></i></span>
+              </div>
+              <div class="input-group">
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                />
+                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              </div>
+              <div class="remember-row">
+                <input type="checkbox" id="remember" />
+                <label for="remember">Remember me</label>
+              </div>
+              <button type="submit" class="login-btn">Log In</button>
+            </form>
+            <form id="registerForm" style="display: none">
+              <h2>Register</h2>
+              <div class="input-group">
+                <select name="role" id="registerRole" required>
+                  <option value="" disabled selected>Select Role</option>
+                  <option value="student">Student</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <span class="input-icon">
+                  <i class="fa-solid fa-user-tag"></i>
+                </span>
+              </div>
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  required
+                />
+                <span class="input-icon"><i class="fa-regular fa-user"></i></span>
+              </div>
+              <div class="input-group">
+                <input type="email" name="email" placeholder="Email" required />
+                <span class="input-icon">
+                  <i class="fa-regular fa-envelope"></i>
+                </span>
+              </div>
+              <div class="input-group">
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                />
+                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              </div>
+              <div class="input-group" id="admin-id-group" style="display: none">
+                <input
+                  type="text"
+                  id="adminId"
+                  name="adminId"
+                  maxlength="6"
+                  pattern="\d{6}"
+                  placeholder="Enter 6-digit Admin ID"
+                  autocomplete="off"
+                />
+                <span class="input-icon">
+                  <i class="fa-solid fa-id-badge"></i>
+                </span>
+              </div>
+              <button type="submit" class="login-btn">Register</button>
+            </form>
+            <div class="create-account" id="toggle-link">
+              <a href="#" id="toggleForm">Create an account</a>
             </div>
-            <div class="input-group">
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                required
-              />
-              <span class="input-icon"><i class="fa-regular fa-user"></i></span>
-            </div>
-            <div class="input-group">
-              <input type="email" name="email" placeholder="Email" required />
-              <span class="input-icon"><i class="fa-regular fa-envelope"></i></span>
-            </div>
-            <div class="input-group">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                required
-              />
-              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
-            </div>
-            <!-- Admin ID input, hidden by default -->
-            <div class="input-group" id="admin-id-group" style="display:none;">
-              <input
-                type="text"
-                id="adminId"
-                name="adminId"
-                maxlength="6"
-                pattern="\d{6}"
-                placeholder="Enter 6-digit Admin ID"
-                autocomplete="off"
-              />
-              <span class="input-icon"><i class="fa-solid fa-id-badge"></i></span>
-            </div>
-            <button type="submit" class="login-btn">Register</button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -128,6 +175,7 @@
     <div id="notification" class="notification"></div>
 
     <script>
+      // Show/hide Admin ID input
       const BASE_URL = "";
 
       function showNotification(message, type = "") {
@@ -145,8 +193,8 @@
       const registerRole = document.getElementById("registerRole");
       const adminIdGroup = document.getElementById("admin-id-group");
       const adminIdInput = document.getElementById("adminId");
+      const loginSection = document.getElementById("loginSection");
 
-      // Show/hide Admin ID field based on role selection
       registerRole.addEventListener("change", function () {
         if (this.value === "admin") {
           adminIdGroup.style.display = "flex";
@@ -160,6 +208,8 @@
 
       toggleForm.addEventListener("click", function (e) {
         e.preventDefault();
+        loginSection.classList.remove("form-active");
+        void loginSection.offsetWidth;
         if (loginForm.style.display === "none") {
           loginForm.style.display = "";
           registerForm.style.display = "none";
@@ -169,9 +219,9 @@
           registerForm.style.display = "";
           toggleForm.textContent = "Already have an account? Log In";
         }
+        setTimeout(() => loginSection.classList.add("form-active"), 10);
       });
 
-      // Registration with OTP
       let pendingUsername = "";
       let pendingPassword = "";
       let pendingRole = "";
@@ -239,13 +289,11 @@
         }
       }
 
-      // Login
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = loginForm.username.value;
         const password = loginForm.password.value;
         const role = loginForm.role.value;
-
         try {
           const res = await fetch(BASE_URL + "/login", {
             method: "POST",
@@ -263,9 +311,13 @@
             window.location.href = data.redirect;
           }
         } catch (error) {
-        console.error(error);
+          console.error(error);
           showNotification("Login failed", "error");
         }
+      });
+
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => loginSection.classList.add("form-active"), 200);
       });
     </script>
   </body>
